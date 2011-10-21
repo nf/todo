@@ -23,9 +23,10 @@ func main() {
 		t := strings.Join(flag.Args()[1:], " ")
 		err = list.AddTask(t)
 	case "rm":
-		n, err := strconv.Atoi(flag.Arg(1))
+		var n int
+		n, err = strconv.Atoi(flag.Arg(1))
 		if err != nil {
-			err = os.NewError("bad argument")
+			err = os.NewError("bad task number")
 			break
 		}
 		err = list.RemoveTask(n)
