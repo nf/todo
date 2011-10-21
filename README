@@ -1,0 +1,26 @@
+todo
+
+A simple command-line todo list written in Go.
+
+Installation:
+
+1. Install Go:
+	http://golang.org/doc/install.html
+
+2. Install todo:
+	$ goinstall github.com/nf/todo
+
+Usage:
+
+1. Add a task to the list:
+	$ todo add write a readme file
+
+2. List outstanding tasks:
+	$ todo
+	 0: write a readme file
+
+3. Remove a task from the list:
+	$ todo rm 0
+
+By Andrew Gerrand <adg@golang.org>
+
