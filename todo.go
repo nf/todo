@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/nf/todo/task"
@@ -17,7 +18,7 @@ func main() {
 
 	list := task.NewList(*file)
 
-	var err os.Error
+	var err error
 	switch flag.Arg(0) {
 	case "add":
 		t := strings.Join(flag.Args()[1:], " ")
@@ -26,7 +27,7 @@ func main() {
 		var n int
 		n, err = strconv.Atoi(flag.Arg(1))
 		if err != nil {
-			err = os.NewError("bad task number")
+			err = errors.New("bad task number")
 			break
 		}
 		err = list.RemoveTask(n)
