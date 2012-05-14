@@ -80,7 +80,6 @@ func (l *List) Get() ([]string, error) {
 	var tasks []string
 	br := bufio.NewReader(f)
 	for {
-		// TODO(adg): handle long lines if prefix bool is set
 		t, _, err := br.ReadLine()
 		if err == io.EOF {
 			break
