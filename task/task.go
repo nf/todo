@@ -3,6 +3,7 @@ package task
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -14,18 +15,38 @@ func NewList(filename string) *List {
 	return &List{filename}
 }
 
-func (l *List) AddTask(s string) os.Error {
-	const flags = os.O_WRONLY | os.O_CREATE | os.O_APPEND
+func (l *List) AddTask(s string, top bool) error {
+	var flags = os.O_WRONLY | os.O_CREATE | os.O_APPEND
+	var tasks []string
+	if top {
+		var err error
+		tasks, err = l.Get()
+		if err != nil {
+			return err
+		}
+		flags = os.O_WRONLY | os.O_CREATE | os.O_TRUNC
+	}
 	f, err := os.OpenFile(l.filename, flags, 0600)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 	_, err = fmt.Fprintln(f, s)
+	if err != nil {
+		return err
+	}
+	if top {
+		for _, t := range tasks {
+			_, err = fmt.Fprintln(f, t)
+			if err != nil {
+				break
+			}
+		}
+	}
 	return err
 }
 
-func (l *List) RemoveTask(n int) os.Error {
+func (l *List) RemoveTask(n int) error {
 	tasks, err := l.Get()
 	if err != nil {
 		return err
@@ -47,10 +68,10 @@ func (l *List) RemoveTask(n int) os.Error {
 	return nil
 }
 
-func (l *List) Get() ([]string, os.Error) {
+func (l *List) Get() ([]string, error) {
 	f, err := os.Open(l.filename)
 	if err != nil {
-		if err, ok := err.(*os.PathError); ok && err.Error == os.ENOENT {
+		if os.IsNotExist(err) {
 			// A non-existent file means no tasks.
 			return nil, nil
 		}
@@ -61,7 +82,7 @@ func (l *List) Get() ([]string, os.Error) {
 	for {
 		// TODO(adg): handle long lines if prefix bool is set
 		t, _, err := br.ReadLine()
-		if err == os.EOF {
+		if err == io.EOF {
 			break
 		}
 		if err != nil {
