@@ -36,7 +36,7 @@ func main() {
 		defaultFile = f
 	}
 	file := flag.String("file", defaultFile, "file in which to store tasks")
-	later := flag.Bool("later", false, "when adding, insert at tail")
+	now := flag.Bool("now", false, "when adding, insert at head")
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, usage)
 		flag.PrintDefaults()
@@ -100,7 +100,7 @@ func main() {
 	if err == noAct {
 		// no action taken, assume add
 		t := strings.Join(flag.Args(), " ")
-		err = list.AddTask(t, !*later)
+		err = list.AddTask(t, *now)
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
