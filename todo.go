@@ -80,6 +80,7 @@ func main() {
 		// single argument; might be shift-to-top
 		i, err2 := strconv.Atoi(flag.Arg(0))
 		if err2 != nil {
+			// not a number, probably just a single word todo
 			break
 		}
 		var tasks []string
@@ -87,7 +88,7 @@ func main() {
 		if err != nil {
 			break
 		}
-		if i > len(tasks) || i < 0 {
+		if i >= len(tasks) || i < 0 {
 			err = errors.New("index out of range")
 		}
 		t := tasks[i]
@@ -96,6 +97,9 @@ func main() {
 			break
 		}
 		err = list.AddTask(t, true)
+		if err == nil {
+			fmt.Println(t)
+		}
 	}
 	if err == noAct {
 		// no action taken, assume add
