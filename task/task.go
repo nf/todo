@@ -1,6 +1,7 @@
 package task
 
 import (
+	"errors"
 	"bufio"
 	"fmt"
 	"io"
@@ -66,6 +67,17 @@ func (l *List) RemoveTask(n int) error {
 		}
 	}
 	return nil
+}
+
+func (l *List) GetTask(n int) (string, error) {
+	tasks, err := l.Get()
+	if err != nil {
+		return "", err
+	}
+	if n >= len(tasks) || n < 0 {
+		return "", errors.New("index out of range")
+	}
+	return tasks[n], nil
 }
 
 func (l *List) Get() ([]string, error) {

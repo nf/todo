@@ -8,11 +8,25 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/nf/todo/task"
 )
 
 var noAct = errors.New("didn't act")
+
+var (
+	file = flag.String("file", defaultFile(".todo", "TODO"), "file in which to store tasks")
+	log  = flag.String("log", defaultFile(".todo-log", "TODOLOG"), "file in which to log removed tasks")
+	now  = flag.Bool("now", false, "when adding, insert at head")
+)
+
+func defaultFile(name, env string) string {
+	if f := os.Getenv(env); f != "" {
+		return f
+	}
+	return filepath.Join(os.Getenv("HOME"), name)
+}
 
 const usage = `Usage:
 	todo
@@ -31,12 +45,6 @@ Flags:
 `
 
 func main() {
-	defaultFile := filepath.Join(os.Getenv("HOME"), ".todo")
-	if f := os.Getenv("TODO"); f != "" {
-		defaultFile = f
-	}
-	file := flag.String("file", defaultFile, "file in which to store tasks")
-	now := flag.Bool("now", false, "when adding, insert at head")
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, usage)
 		flag.PrintDefaults()
@@ -64,6 +72,14 @@ func main() {
 		if n == 1 {
 			i = 0
 		}
+		var t string
+		t, err = list.GetTask(i)
+		if err != nil {
+			break
+		}
+		if err2 := logRemovedTask(t); err2 != nil {
+			fmt.Fprintln(os.Stderr, "logging:", err2)
+		}
 		err = list.RemoveTask(i)
 		if err != nil || n == 2 {
 			break
@@ -83,15 +99,11 @@ func main() {
 			// not a number, probably just a single word todo
 			break
 		}
-		var tasks []string
-		tasks, err = list.Get()
+		var t string
+		t, err = list.GetTask(i)
 		if err != nil {
 			break
 		}
-		if i >= len(tasks) || i < 0 {
-			err = errors.New("index out of range")
-		}
-		t := tasks[i]
 		err = list.RemoveTask(i)
 		if err != nil {
 			break
@@ -110,4 +122,15 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func logRemovedTask(t string) error {
+	f, err := os.OpenFile(*log, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	now := time.Now().Format("2006-01-02")
+	_, err = fmt.Fprintf(f, "%s %s\n", now, t)
+	return err
 }
