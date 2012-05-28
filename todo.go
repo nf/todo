@@ -19,6 +19,7 @@ var (
 	file = flag.String("file", defaultFile(".todo", "TODO"), "file in which to store tasks")
 	log  = flag.String("log", defaultFile(".todo-log", "TODOLOG"), "file in which to log removed tasks")
 	now  = flag.Bool("now", false, "when adding, insert at head")
+	done = flag.Bool("done", false, "don't actually add; just append to log file")
 )
 
 func defaultFile(name, env string) string {
@@ -116,7 +117,11 @@ func main() {
 	if err == noAct {
 		// no action taken, assume add
 		t := strings.Join(flag.Args(), " ")
-		err = list.AddTask(t, *now)
+		if *done {
+			err = logRemovedTask(t)
+		} else {
+			err = list.AddTask(t, *now)
+		}
 	}
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
