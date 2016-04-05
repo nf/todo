@@ -8,7 +8,7 @@ Installation:
 	http://golang.org/doc/install.html
 
 2. Install todo:
-	$ goinstall github.com/nf/todo
+	$ `go get github.com/nf/todo`
 
 Usage:
 
