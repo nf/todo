@@ -32,7 +32,7 @@ func defaultFile(name, env string) string {
 const usage = `Usage:
 	todo
 		Show top task
-	todo ls
+	todo ls/list
 		Show all tasks
 	todo N
 		Promote task N to top
@@ -57,7 +57,7 @@ func main() {
 
 	err := noAct
 	switch {
-	case a == "ls" && n == 1:
+	case (a == "ls" || a == "list") && n == 1:
 		// list tasks
 		var tasks []string
 		tasks, err = list.Get()
